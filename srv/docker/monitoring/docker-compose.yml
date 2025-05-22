@@ -1,0 +1,87 @@
+name: monitoring
+
+services:
+  alertmanager:
+    image: prom/alertmanager:v0.28.1
+    container_name: alertmanager-monitoring
+    hostname: alertmanager-monitoring
+    restart: unless-stopped
+#    volumes:
+#      -
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--log.level=error'
+      - '--storage.path=/alertmanager'
+      - '--web.external-url=http://localhost:9093'
+    ports:
+      - 9093:9093
+
+  cadvisor:
+    image: bitnami/cadvisor:0.52.1
+    container_name: cadvisor-monitoring
+    hostname: cadvisor-monitoring
+    restart: unless-stopped
+    user: root
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  grafana:
+    image: grafana/grafana:12.0.0
+    container_name: grafana-monitoring
+    hostname: grafana-monitoring
+    restart: unless-stopped
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_USERS_DEFAULT_THEME=light
+      - GF_LOG_MODE=console
+      - GF_LOG_LEVEL=critical
+      - GF_PANELS_ENABLE_ALPHA=true
+    volumes:
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - grafana-data:/var/lib/grafana
+    ports:
+      - 3000:3000
+
+  node-exporter:
+    image: prom/node-exporter:v1.9.1
+    container_name: node-exporter-monitoring
+    hostname: node-exporter-monitoring
+    restart: unless-stopped
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points'
+      - "^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs) ($$|/)"
+
+  prometheus-monitoring:
+    image: prom/prometheus:v3.4.0
+    container_name: prometheus-monitoring
+    hostname: prometheus-monitoring
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--log.level=error'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=7d'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.external-url=http://localhost:9090'
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./:/etc/prometheus/alerting-rules.yml
+      - prometheus-data:/prometheus
+    ports:
+      - 9090:9090
+volumes:
+  grafana-data: {}
+  prometheus-data: {}
