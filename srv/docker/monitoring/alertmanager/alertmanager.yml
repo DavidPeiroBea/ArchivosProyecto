@@ -1,0 +1,17 @@
+global:
+  smtp_smarthost: 'smtp.office365.com:587'
+  smtp_from: 'davpeibea@alu.edu.gva.es'
+  smtp_auth_username: 'davpeibea@alu.edu.gva.es'
+  smtp_auth_password_file: '/run/secrets/alertmanager-secrets'
+
+route:
+  receiver: 'correo'
+
+receivers:
+  - name: 'correo'
+    email_configs:
+      - to: 'davpeibea@alu.edu.gva.es'
+        require_tls: true
+        tls_config:
+          insecure_skip_verify: true  # Saltar el certificado
+        send_resolved: true

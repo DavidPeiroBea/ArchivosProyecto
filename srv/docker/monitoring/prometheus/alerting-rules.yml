@@ -1,0 +1,32 @@
+groups:
+  - name: Server
+    rules:
+      - alert: Uso_CPU
+        expr: (100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)) > 95
+        for: 3m
+        annotations:
+          summary: "Uso de CPU superior a 95%"
+          description: "Uso de CPU: {{ $value }}%"
+
+      - alert: Uso_RAM
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 95
+        for: 3m
+        annotations:
+          summary: "Uso de RAM superior a 95%"
+          description: "Uso de RAM: {{ $value }}%"
+
+      - alert: Uso_Disco
+        expr: ((node_filesystem_size_bytes{fstype=~"ext4|xfs"} - node_filesystem_free_bytes{fstype=~"ext4|xfs"}) / node_filesystem_size_bytes{fstype=~"ext4|xfs"}) * 100 > 85
+        for: 15m
+        annotations:
+          summary: "Uso de disco superior a 85%"
+          description: "Uso de disco: {{ $value }}%"
+
+  - name: Containers
+    rules:
+      - alert: STATUS_JENKINS
+        expr: absent(container_last_seen{container="jenkins"} > time() - 60)
+        for: 1m
+        annotations:
+          summary: "Docker Jenkins detenido"
+          description: "El contenedor Docker de Jenkins se ha detenido"
