@@ -25,7 +25,7 @@ groups:
   - name: Containers
     rules:
       - alert: STATUS_JENKINS
-        expr: absent(container_last_seen{container="jenkins"} > time() - 60)
+        expr: absent(container_last_seen{name="jenkins"} > time() - 60)
         for: 1m
         annotations:
           summary: "Docker Jenkins detenido"
