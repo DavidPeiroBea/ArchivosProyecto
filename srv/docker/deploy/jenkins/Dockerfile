@@ -9,4 +9,8 @@ RUN apt-get update && apt-get install -y ssh ansible git \
   && chmod 700 /var/jenkins_home/.ssh \
   && chmod 600 /var/jenkins_home/.ssh/known_hosts
 
+COPY jenkins/plugins.txt /usr/share/jenkins/ref/plugins.txt
+
+RUN jenkins-plugin-cli --plugin-file /usr/share/jenkins/ref/plugins.txt
+
 USER jenkins

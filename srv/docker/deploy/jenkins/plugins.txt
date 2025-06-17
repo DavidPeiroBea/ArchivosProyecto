@@ -1,0 +1,16 @@
+docker-workflow
+docker-plugin
+git
+github
+ssh-agent
+ssh-credentials
+mailer
+credentials-binding
+workflow-aggregator
+pipeline-model-definition
+workflow-job
+workflow-multibranch
+workflow-basic-steps
+workflow-cps
+durable-task
+credentials

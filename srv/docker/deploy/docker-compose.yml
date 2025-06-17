@@ -10,12 +10,12 @@ services:
     volumes:
       - jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./jenkins/web:/var/jenkins_home/workspace/web
-      - ~/.ssh:/var/jenkins_home/.ssh
+      - ~/.ssh:/var/jenkins_home/.ssh:rw
     networks:
       - jenkins-net
     secrets:
       - jenkins-secret
+
 networks:
   jenkins-net:
     driver: bridge
